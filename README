@@ -1,5 +1,8 @@
+<h1>Google ReCaptcha Api</h1>
+
 http://code.google.com/intl/tr-TR/apis/recaptcha/docs/php.html The only difference 
 all functions changes to object but $resp object changed to array.
+
 old usage : $resp->is_valid | new usage : $resp['is_valid']
 only include and use.
 
@@ -11,9 +14,13 @@ only include and use.
 		//print $captcha variable in your view file in anywhere.
 		//verifing
 		if($_POST){
+			//if test your form, you may add $debug value. ( but before add $extra_param variable )
 			$resp = $this->recaptcha->recaptcha_check_answer($this->input->server('REMOTE_ADDR'),
             $this->input->post('recaptcha_challenge_field'),
-            $this->input->post('recaptcha_response_field'));
+            $this->input->post('recaptcha_response_field'),
+			array(),
+			true
+			);
 			if($resp['is_valid']){
 				echo 'Error:'.$resp['error'];
 			}else{
