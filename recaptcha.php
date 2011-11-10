@@ -1,67 +1,4 @@
 <?php
-/**
- * @update 	Emre YILMAZ
- * @date	09-11-2011 08:10pm
- * @desc	Google reCaptcha Api file for codeigniter.
- * @usage	http://code.google.com/intl/tr-TR/apis/recaptcha/docs/php.html The only difference 
- *			all functions changes to object but $resp object changed to array.
- *			old usage : $resp->is_valid | new usage : $resp['is_valid']
- *			only include and use.
- * @example  <?php
- class ControllerName extends CI_Controller{
-	function index(){
-		$this->load->library('recaptcha');
-		$data['captcha'] = $this->recaptcha->recaptcha_get_html();
-		//print $captcha variable in your view file in anywhere.
-		//verifing
-		if($_POST){
-			$resp = $this->recaptcha->recaptcha_check_answer($this->input->server('REMOTE_ADDR'),
-            $this->input->post('recaptcha_challenge_field'),
-            $this->input->post('recaptcha_response_field'));
-			if($resp['is_valid']){
-				echo 'Error:'.$resp['error'];
-			}else{
-				//your code here to handle a successfull verification.
-			}
-		}
-	}
- }
- 
- ?>
-**/
-/*
- * This is a PHP library that handles calling reCAPTCHA.
- *    - Documentation and latest version
- *          http://recaptcha.net/plugins/php/
- *    - Get a reCAPTCHA API Key
- *          https://www.google.com/recaptcha/admin/create
- *    - Discussion group
- *          http://groups.google.com/group/recaptcha
- *
- * Copyright (c) 2007 reCAPTCHA -- http://recaptcha.net
- * AUTHORS:
- *   Mike Crawford
- *   Ben Maurer
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 class recaptcha{
     public $recaptcha;
     
@@ -97,15 +34,20 @@ class recaptcha{
             }
             return '
                 <script type="text/javascript">
+                $(document).ready(function(){
+                    $("#recaptcha_response_field").addClass(\'required\');
+                    $("#recaptcha_response_field").attr(\'title\',\'Güvenlik kodunu girmeniz gerekmektedir\');                
+                });
 var RecaptchaOptions = {
    lang : \''.$this->recaptcha['language'].'\',
    theme : \''.$this->recaptcha['theme'].'\'
 };
+
 </script><script type="text/javascript" src="'. $server . '/challenge?k=' . $this->recaptcha['publickey'] . $errorpart . '"></script>
 
             <noscript>
                     <iframe src="'. $server . '/noscript?k=' . $this->recaptcha['publickey'] . $errorpart . '" height="300" width="500" frameborder="0"></iframe><br/>
-                    <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+                    <textarea name="recaptcha_challenge_field" rows="3" cols="40" class="required"></textarea>
                     <input type="hidden" name="recaptcha_response_field" value="manual_challenge"/>
             </noscript>';
     }
@@ -117,9 +59,10 @@ var RecaptchaOptions = {
       * @param string $challenge
       * @param string $response
       * @param array $extra_params an array of extra variables to post to the server
+      * @param boolean $debug if true this var, always return ReCaptchaResponse['is_valid']=true 
       * @return ReCaptchaResponse
       */
-    function recaptcha_check_answer ($remoteip, $challenge, $response, $extra_params = array())
+    function recaptcha_check_answer ($remoteip, $challenge, $response, $extra_params = array(),$debug=false)
     {
             if ($this->recaptcha['privatekey'] == null || $this->recaptcha['privatekey'] == '') {
                     die ("To use reCAPTCHA you must get an API key from <a href='https://www.google.com/recaptcha/admin/create'>https://www.google.com/recaptcha/admin/create</a>");
@@ -158,6 +101,9 @@ var RecaptchaOptions = {
             else {
                     $recaptcha_response['is_valid'] = false;
                     $recaptcha_response['error'] = $answers [1];
+            }
+            if($debug===TRUE){
+                $recaptcha_response['is_valid'] = true;
             }
             return $recaptcha_response;
 
